@@ -1,46 +1,24 @@
-import express from "express";
-import _dirname from "./dirname.js";
+import { Server } from "socket.io";
+import { manager } from "./main.js";
 
-import mongoose from "mongoose";
-import handlebars from "express-handlebars";
+export function initializeSocket(httpServer) {
+    let io = new Server(httpServer);
+  
+    io.on('connection', (socket) => {
+    
+        socket.on('connectedClient', (message) => {
+            console.log('A client says', message);
+        })
+        
+        socket.emit("products", manager.getProducts())
 
-//Routes
-import productRouter from "./routes/product.routes.js";
-import viewsRouter from "./routes/views.routes.js";
+        socket.on("addProduct", (message) => {
+            manager.addProductRawObject(message)
+            if (manager.errorMessage) { socket.emit("errorAddingProduct", manager.errorMessage) }
+        })
 
-const port = 5000
-const app = express()
+        socket.on("deleteProduct", (target) => { manager.deleteProduct(parseInt(target)) })
 
-//Middleware
-app.use(express.json())
-app.use(express.urlencoded({extended: true}))
-
-app.use(express.static('public'))
-app.use('/static', express.static('public'))
-app.use(express.static(_dirname + 'public'))
-
-//Rutas
-app.use("/api/products", productRouter)
-app.use("/", viewsRouter)
-
-//Handlebars
-app.engine('hbs', handlebars.engine(
-    {
-        extname: ".hbs",
-        defaultLayout: "main"
-    }
-))
-app.set("view engine", "hbs")
-app.set("views", _dirname + "/views")
-
-
-
-//Mongoose
-mongoose.connect('mongodb://127.0.0.1:27017/myapp')
-.then(() => console.log("Conectado a DB"))
-.catch((err) => console.log(err))
-
-//Iniciar
-app.listen(port, () => {
-    console.log("Se Inicio el servidor")
-})
+    })
+    return io;
+  }
