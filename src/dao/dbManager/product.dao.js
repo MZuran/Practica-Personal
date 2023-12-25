@@ -1,12 +1,17 @@
-import { productModel } from "../../models/product.model.js"
+import { productModel } from "../models/product.model.js"
 
 class productDao {
     constructor() { this.model = productModel }
 
-    async getAllProducts() {
+    async getAllProducts(limitNumber) {
         //Handlebars NO FUNCIONA con los objetos de mongoose
         //Poner .lean() es para que esté en un formato que sí los pueda usar
-        return await this.model.find().lean()
+
+        if (limitNumber) {
+            return await this.model.find().limit(limitNumber).lean()
+        } else {
+            return await this.model.find().lean()
+        }
     }
 
     async getProductById(id) {
