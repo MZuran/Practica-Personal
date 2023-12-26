@@ -1,9 +1,9 @@
-import { cartModel } from "../models/cart.model.js"
+import { messageModel } from "../models/message.model.js"
 
-class cartDao {
-    constructor() { this.model = cartModel }
+class chatDao {
+    constructor() { this.model = messageModel }
 
-    async getAllCarts(limitNumber) {
+    async getAllMessages(limitNumber) {
         //Handlebars NO FUNCIONA con los objetos de mongoose
         //Poner .lean() es para que esté en un formato que sí los pueda usar
         if (limitNumber) {
@@ -13,25 +13,21 @@ class cartDao {
         }
     }
 
-    async getCartById(id) {
+    async getMessageById(id) {
         return await this.model.findById(id)
     }
 
-    async createCart(cart) {
+    async createMessage(cart) {
         return await this.model.create(cart)
     }
 
-    async addItemToCart(cartId, itemId) {
-        return await this.model.findAndModify()
+    async updateMessage(id, msg) {
+        return await this.model.findByIdAndUpdate(id, msg)
     }
 
-    async updateCart(id, cart) {
-        return await this.model.findByIdAndUpdate(id, cart)
-    }
-
-    async deleteCart(id) {
+    async deleteMessage(id) {
         return await this.model.findByIdAndDelete(id)
     }
 }
 
-export default cartDao
+export default chatDao
